@@ -19,7 +19,7 @@ function test1() { // same as "test1 = new Function()"
   return {} // same as "return new Object"
 }
 
-console.log("----- Sample 1 -----") 
+console.log("\n\n--------------- Sample 1 ---------------\n\n") 
 // Ques: Is object generated in "new test()"? Ans: Yes!
 console.log("Sample 1", new test1()) // will return object of "{}" / Object
 
@@ -28,12 +28,12 @@ function test2() {
    
 }
 
-console.log("----- Sample 2 -----") 
+console.log("\n\n--------------- Sample 2 ---------------\n\n") 
 console.log("Sample 2", new test2()) // will return object of "test2()" 
 
 
 // Sample 3
-console.log("----- Sample 3 -----") 
+console.log("\n\n--------------- Sample 3 ---------------\n\n") 
 console.log("typeof Object", typeof Object) // "function"
 console.log("typeof Array", typeof Array) // "function"
 
@@ -48,7 +48,7 @@ console.log("typeof Array", typeof Array) // "function"
 */ 
 
 // Sample 4
-console.log("----- Sample 4 -----")
+console.log("\n\n--------------- Sample 4 ---------------\n\n")
 console.log("Object.prototype", Object.prototype) // {constructor: f, ...}
 console.log("Array.prototype", Array.prototype) // {constructor: f, ...}
 console.log("Number.prototype", Number.prototype) // {constructor: f, ...}
@@ -60,7 +60,7 @@ console.log("obj.prototype", obj.prototype) // undefined
 // only function got prototype, obj is an Object
 
 // Sample 5
-console.log("----- Sample 5 -----")
+console.log("\n\n--------------- Sample 5 ---------------\n\n")
 console.log("test1.prototype.constructor == test1", test1.prototype.constructor == test1) // true
 console.log("Object.prototype.constructor == Object", Object.prototype.constructor == Object) // true
 
@@ -76,7 +76,7 @@ console.log("Object.prototype.constructor == Object", Object.prototype.construct
 */ 
 
 // Sample 6
-console.log("----- Sample 6 -----")
+console.log("\n\n--------------- Sample 6 ---------------\n\n")
 console.log("test1.__proto__", test1.__proto__) // ƒ () { [native code] }
 // function is an object, so it must have __proto__
 
@@ -89,7 +89,8 @@ console.log("obj.__proto__", obj.__proto__) // {constructor: f, ...}
 console.log("test1.prototype.__proto__", test1.prototype.__proto__) // {constructor: f, ...}
 // prototype is an object as well, an object must have __proto__
 
-console.log("----- Sample 7 -----")
+// Sample 7
+console.log("\n\n--------------- Sample 7 ---------------\n\n")
 var obj1 = new test2()
 var obj2 = new test1()
 
@@ -116,7 +117,8 @@ function User(name, age){
     }
 }
 
-console.log("----- Sample 8 -----")
+// Sample 8
+console.log("\n\n--------------- Sample 8 ---------------\n\n")
 var u1 = new User("Alan", 20)
 var u2 = new User("Oscar", 22)
 
@@ -143,14 +145,14 @@ u2.__proto__.sayHi() // Hi
 
 console.log("u1.__proto__.sayHi() === u2.__proto__.sayHi()", u1.__proto__.sayHi() === u2.__proto__.sayHi()) // true
 
-
-console.log("----- Sample 9 -----")
+// Sample 9
+console.log("\n\n--------------- Sample 9 ---------------\n\n")
 /*
   When accessing attribute of an object:
 
   1. check whether the object got the attribute, if yes then use
   2. check whether the __proto__ of object got the attribute, if yes then use
-  3. 
+  3. In prototype chain, find in order
 
   
  */
@@ -164,5 +166,77 @@ console.log("[]", []) // length is 0
 // because of it __proto__ got those functions
 
 console.log("[].__proto__",[].__proto__) // {constructor: f, ...}
+
+// Sample 10
+console.log("\n\n--------------- Sample 10 ---------------\n\n")
+
+// test2 - customize function (自定义函数)
+// obj3 - customize object (自定义对象)
+var obj3 = new test2()
+
+console.log("\n\n---------- Customize object (自定义对象) ----------\n\n")
+console.log("obj3.__proto__", obj3.__proto__) // {constructor: f, ...}
+// obj3 is generate by "new test2()", so its __proto__ will point to prototype of test2()
+
+console.log("obj3.__proto__.__proto__", obj3.__proto__.__proto__) // {constructor: f, ...}
+// obj3.__proto__ is an object, object is generate by "new Object", so its __proto__ will point to prototype of Object
+
+console.log("obj3.__proto__.__proto__.__proto__", obj3.__proto__.__proto__.__proto__) // null
+//
+
+console.log("\n\n---------- Customize function (自定义函数) ---------\n\n")
+console.log("test2.__proto__", test2.__proto__) // ƒ () { [native code] }
+// test2 is generate by "new Function", so its __proto__ will point to prototype of Function
+
+console.log("test2.__proto__.__proto__", test2.__proto__.__proto__) // {constructor: f, ...}
+// new Function is an object also, so it must have __proto__
+// test2.__proto__ is an object, so its __proto__ will point to prototype of Object
+
+console.log("test2.__proto__.__proto__.__proto__", test2.__proto__.__proto__.__proto__) // null
+
+console.log("\n\n---------- Object (构造函数) ---------\n\n")
+console.log("Object.__proto__", Object.__proto__) // ƒ () { [native code] }
+// Object is generate by "new Function", so its __proto__ will point to prototype of Function
+
+console.log("Object.__proto__.__proto__", Object.__proto__.__proto__) // {constructor: f, ...}
+// new Object is an object, so it must have __proto__
+// Object.__proto__ is an object, so its __proto__ will point to prototype of Object
+
+console.log("Object.__proto__.__proto__.__proto__", Object.__proto__.__proto__.__proto__) // null
+
+// Sample 11
+console.log("\n\n---------- Sample 11 ---------\n\n")
+
+/*
+
+  All function is generate by "new Function", and all their __proto__ is same, so their got same and share attribute
+
+  Special Note:
+
+  1. __proto__ of Function point to its own prototype (Function的隐式原型指向它自身的原型)
+  2. __proto__ of prototype of Object is point to null (Object的prototype的__proto__指向null)
+  
+ */
+
+console.log("test2.call",test2.call) // ƒ call() { [native code] }
+console.log("test2.apply",test2.apply) // ƒ apply() { [native code] }
+console.log("test2.bind",test2.bind) // ƒ bind() { [native code] }
+
+// console.dir(test2) // => uncomment and try
+
+// inside test2 will don't have any of the function above
+// all the function are come from __proto__, which is "Function.prototype"
+
+//console.dir(Function.prototype) // => uncomment and try
+
+// Same idea apply for Array, Object..., they all also generate by "new Function"
+
+//console.dir(Array.call) // => uncomment and try
+//console.dir(Object.call) // => uncomment and try
+console.log("Object.call===Array.call",Object.call===Array.call) // true
+
+
+
+
 
 
