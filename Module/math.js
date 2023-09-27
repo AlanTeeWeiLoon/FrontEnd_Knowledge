@@ -7,15 +7,12 @@ const isOdd = (n) => {
     return n % 2 !== 0
 }
 
-
-
 const sum = (a, b) => {
     return a + b
 }
 
-
 // export to other module to use
-module.exports ={
+module.exports = {
     isOdd,
     sum
 }

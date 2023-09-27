@@ -5,9 +5,9 @@ function A(){}
 function B(){}
 
 function create(){
-    if(Math.random()<0.5){
+    if(Math.random()<0.5) {
         return new A()
-    }else {
+    } else {
         return new B()
     }
 }
