@@ -12,6 +12,50 @@ const PENDING = "pending";
 const FULFILLED = "fulfilled";
 const REJECTED = "rejected";
 
+/**
+ * Promise.then(()=>{})
+ * function inside .then() will put in queneMircotask(),
+ * but now we have to write our own coding to create queneMircotask
+ */
+
+/**
+ * Execute a queneMircotask (运行一个微队列任务)
+ * Put the passed function into the microqueue（把传递的函数放到微队列中）
+ * @param {Function} callback
+ */
+
+function runMircoTask(callback) {
+  // Determine node environment
+  if (process && process.nextTick) {
+    /**
+     * node environment got an object call "process", which broswer dont have
+     * its such a microqueue inside node
+     * Look for Sample 2
+     */
+    process.nextTick(callback);
+  }
+  // Determine whether browser support MutationObserver
+  else if (MutationObserver) {
+    /**
+     * MutationObserver (观察器) => use to observe element,
+     * if element got changes then will exceute the function
+     * will put the function into microqueue to execute
+     * ** Note: Some browser may not support
+     */
+    const p = document.createElement("p");
+    const observer = new MutationObserver(callback);
+    observer.observe(p, {
+      childList: true, // 观察该元素内部的变化
+    });
+    p.innerHTML = "1"; // manually change the element to trigger MutationObserver
+  }
+  // No more ways for environment or Browser can put task to microqueue,
+  // then will just use setTimeout
+  else {
+    setTimeout(() => callback, 0);
+  }
+}
+
 class MyPromise {
   /**
    * create a Promise
@@ -54,7 +98,6 @@ class MyPromise {
   _resolve(data) {
     // If completed, change status and data
     this._changeState(FULFILLED, data);
-    console.log("Completed", data);
   }
 
   /**
@@ -64,7 +107,6 @@ class MyPromise {
   _reject(reason) {
     // If failed, change status and data(reason)
     this._changeState(REJECTED, reason);
-    console.log("Failed", reason);
   }
 }
 
@@ -85,6 +127,8 @@ const promise4 = new MyPromise((resolve, reject) => {
   throw 444;
 });
 
+// Sample 1
+console.log("\n\n---------- Sample 1 ---------\n\n");
 console.log(promise1); // MyPromise { _state: 'fulfilled', _value: 123 }
 
 console.log(promise2); // MyPromise { _state: 'rejected', _value: 321 }
@@ -95,3 +139,46 @@ console.log(promise3); // MyPromise { _state: 'fulfilled', _value: 123 }
 
 console.log(promise4); // MyPromise { _state: 'rejected', _value: 444 }
 // Due to handle by try catch, so if hit error exception will just _reject()
+
+// Sample 2 - Comment Sample 3 to execute
+console.log("\n\n---------- Sample 2 ---------\n\n");
+// setTimeout(() => {
+//   console.log("setTimeout");
+// }, 0);
+
+// process.nextTick(() => {
+//   console.log("process.nextTick"); // will process before setTimeout
+// });
+
+// console.log("None");
+
+/*
+
+Output: None => process.nextTick => setTimeout
+None will be execute first,
+then only process.nextTickbecause its in mircoquene, 
+lastly only execute setTimeout which inside macroquene (宏队列）
+
+*/
+
+// Sample 3 - Comment Sample 2 to execute
+console.log("\n\n---------- Sample 3 ---------\n\n");
+
+setTimeout(() => {
+  console.log("setTimeout");
+}, 0);
+
+runMircoTask(() => {
+  console.log("runMircoTask");
+});
+
+console.log("None");
+
+/*
+
+Output: None => runMircoTask => setTimeout
+None will be execute first,
+then only runMircoTask its in mircoquene, 
+lastly only execute setTimeout which inside macroquene (宏队列）
+
+*/
