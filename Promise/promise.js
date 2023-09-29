@@ -1,6 +1,6 @@
 // Own Coding Promise Structure
 
-/**
+/* Note:
  * Promise got 3 status:
  *
  *  1. Pending
@@ -12,9 +12,10 @@ const PENDING = "pending";
 const FULFILLED = "fulfilled";
 const REJECTED = "rejected";
 
-/**
+/* Note:
+ *
  * Promise.then(()=>{})
- * function inside .then() will put in queneMircotask(),
+ * function inside .then() will put in queneMircotask() (微队列),
  * but now we have to write our own coding to create queneMircotask
  */
 
@@ -27,7 +28,8 @@ const REJECTED = "rejected";
 function runMircoTask(callback) {
   // Determine node environment
   if (process && process.nextTick) {
-    /**
+    /* Note:
+     *
      * node environment got an object call "process", which broswer dont have
      * its such a microqueue inside node
      * Look for Sample 2
@@ -36,11 +38,12 @@ function runMircoTask(callback) {
   }
   // Determine whether browser support MutationObserver
   else if (MutationObserver) {
-    /**
+    /* Note:
+     *
      * MutationObserver (观察器) => use to observe element,
      * if element got changes then will exceute the function
      * will put the function into microqueue to execute
-     * ** Note: Some browser may not support
+     * ** Note: Some browser may not support **
      */
     const p = document.createElement("p");
     const observer = new MutationObserver(callback);
@@ -48,10 +51,12 @@ function runMircoTask(callback) {
       childList: true, // 观察该元素内部的变化
     });
     p.innerHTML = "1"; // manually change the element to trigger MutationObserver
-  }
-  // No more ways for environment or Browser can put task to microqueue,
-  // then will just use setTimeout
-  else {
+  } else {
+  /* Note:
+   *
+   * No more ways for environment or Browser can put task to microqueue,
+   * then will just use setTimeout
+   */
     setTimeout(() => callback, 0);
   }
 }
@@ -64,17 +69,32 @@ class MyPromise {
   constructor(executor) {
     this._state = PENDING; // status（状态）
     this._value = undefined; // data（数据）
+    this._handlers = []; // 处理函数形成的队列
 
-    // try catch is to handle "promise4" example, otherwise will hit exception
-    // so if hit exception, will just call _reject()
+    /* Note:
+     *
+     * try catch is to handle "promise4" example, otherwise will hit exception
+     * so if hit exception, will just call _reject()
+     */
+
     try {
+      // .bind(this) is binding the current new created "MyPromise",
+      // otherwise "this" in "_changeState" will point to global variables
       executor(this._resolve.bind(this), this._reject.bind(this));
     } catch (err) {
       this._reject(err);
     }
+  }
 
-    // .bind(this) is binding the current new created "MyPromise",
-    // otherwise "this" in "_changeState" will point to global variables
+  /**
+   * then of Promise A+ specification (Promise 的A+规范的then)
+   * @param {Function} onFulfilled
+   * @param {Function} onRejected
+   */
+
+  // then always got 2 params, if only pass one then the second one will be undefined
+  then(onFulfilled, onRejected) {
+    return new MyPromise((resolve, reject) => {});
   }
 
   /**
@@ -134,7 +154,7 @@ console.log(promise1); // MyPromise { _state: 'fulfilled', _value: 123 }
 console.log(promise2); // MyPromise { _state: 'rejected', _value: 321 }
 
 console.log(promise3); // MyPromise { _state: 'fulfilled', _value: 123 }
-// Due to checking login in _changeState,
+// Due to checking state in _changeState,
 // so reject() will just return due to _state had changed
 
 console.log(promise4); // MyPromise { _state: 'rejected', _value: 444 }
