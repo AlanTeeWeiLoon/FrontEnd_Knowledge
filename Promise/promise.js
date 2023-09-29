@@ -52,11 +52,11 @@ function runMircoTask(callback) {
     });
     p.innerHTML = "1"; // manually change the element to trigger MutationObserver
   } else {
-  /* Note:
-   *
-   * No more ways for environment or Browser can put task to microqueue,
-   * then will just use setTimeout
-   */
+    /* Note:
+     *
+     * No more ways for environment or Browser can put task to microqueue,
+     * then will just use setTimeout
+     */
     setTimeout(() => callback, 0);
   }
 }
@@ -87,6 +87,48 @@ class MyPromise {
   }
 
   /**
+   * add on function to the process queue (向处理队列中添加一个函数）
+   * @param {Function} executor // function (添加的函数)
+   * @param {String} state // What state should execute the function
+   * @param {Function} resolve // 让then函数返回的Promise成功
+   * @param {Function} reject // 让then函数返回的Promise失败
+   */
+  _pushHandlers(executor, state, resolve, reject) {
+    this._handlers.push({
+      executor,
+      state,
+      resolve,
+      reject,
+    });
+  }
+
+  /**
+   *
+   * Execute task depends on current state
+   */
+
+  _runHandlers() {
+    if (this._state === PENDING) {
+      // task still in pending state just return, no need execute anything
+      return;
+    }
+    while(this._handlers[0]){
+        const handler = this._handlers[0]
+        this._runOneHandler(handler);
+        this._handlers.shift()
+    }  
+  }
+
+  /**
+   * Settle 1 handler
+   * @param {Object} handler
+   */
+
+  _runOneHandler(handler) {
+
+  }
+
+  /**
    * then of Promise A+ specification (Promise 的A+规范的then)
    * @param {Function} onFulfilled
    * @param {Function} onRejected
@@ -94,7 +136,11 @@ class MyPromise {
 
   // then always got 2 params, if only pass one then the second one will be undefined
   then(onFulfilled, onRejected) {
-    return new MyPromise((resolve, reject) => {});
+    return new MyPromise((resolve, reject) => {
+      this._pushHandlers(onFulfilled, FULFILLED, resolve, reject);
+      this._pushHandlers(onRejected, REJECTED, resolve, reject);
+      this._runHandlers(); // execute task list
+    });
   }
 
   /**
@@ -109,6 +155,7 @@ class MyPromise {
     }
     this._state = newState;
     this._value = value;
+    this._runHandlers(); // state changed, execute task list
   }
 
   /**
@@ -160,7 +207,7 @@ console.log(promise3); // MyPromise { _state: 'fulfilled', _value: 123 }
 console.log(promise4); // MyPromise { _state: 'rejected', _value: 444 }
 // Due to handle by try catch, so if hit error exception will just _reject()
 
-// Sample 2 - Comment Sample 3 to execute
+// Sample 2 - Comment Sample 3 & 4 to execute
 console.log("\n\n---------- Sample 2 ---------\n\n");
 // setTimeout(() => {
 //   console.log("setTimeout");
@@ -181,18 +228,18 @@ lastly only execute setTimeout which inside macroquene (宏队列）
 
 */
 
-// Sample 3 - Comment Sample 2 to execute
+// Sample 3 - Comment Sample 2 & 4 to execute
 console.log("\n\n---------- Sample 3 ---------\n\n");
 
-setTimeout(() => {
-  console.log("setTimeout");
-}, 0);
+// setTimeout(() => {
+//   console.log("setTimeout");
+// }, 0);
 
-runMircoTask(() => {
-  console.log("runMircoTask");
-});
+// runMircoTask(() => {
+//   console.log("runMircoTask");
+// });
 
-console.log("None");
+// console.log("None");
 
 /*
 
@@ -200,5 +247,33 @@ Output: None => runMircoTask => setTimeout
 None will be execute first,
 then only runMircoTask its in mircoquene, 
 lastly only execute setTimeout which inside macroquene (宏队列）
+
+*/
+
+// Sample 4 - Comment Sample 2 & 3 to execute
+console.log("\n\n---------- Sample 4 ---------\n\n");
+const promise5 = new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    resolve(123);
+  }, 1000);
+});
+
+promise5.then(
+  function A1() {},
+  function A2() {}
+);
+
+promise5.then(
+  function B1() {},
+  function B2() {}
+);
+
+console.log(promise5);
+
+/*
+
+Output: Cuurent _state and _value and a List of _handlers 
+Push all tasks that is possible to execute into the _handlers object, 
+which task is going to execute is depends on _state
 
 */
