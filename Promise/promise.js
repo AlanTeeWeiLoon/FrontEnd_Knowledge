@@ -20,6 +20,16 @@ const REJECTED = "rejected";
  */
 
 /**
+ * Determine the data is Promise or not
+ * **to return boolean can use "!!"**,
+ * otherwise will return base on "obj", if "obj" is null, then will return null
+ * @param {any} obj
+ */
+function isPromise(obj) {
+  return !!(obj && typeof obj === "object" && typeof obj.then === "function");
+}
+
+/**
  * Execute a queneMircotask (运行一个微队列任务)
  * Put the passed function into the microqueue（把传递的函数放到微队列中）
  * @param {Function} callback
@@ -112,20 +122,37 @@ class MyPromise {
       // task still in pending state just return, no need execute anything
       return;
     }
-    while(this._handlers[0]){
-        const handler = this._handlers[0]
-        this._runOneHandler(handler);
-        this._handlers.shift()
-    }  
+    while (this._handlers[0]) {
+      const handler = this._handlers[0];
+      this._runOneHandler(handler);
+      this._handlers.shift();
+    }
   }
 
   /**
-   * Settle 1 handler
+   * Process 1 handler
    * @param {Object} handler
    */
 
-  _runOneHandler(handler) {
-
+  _runOneHandler({ executor, state, resolve, reject }) {
+    runMircoTask(() => {
+      if (this._state !== state) {
+        return; // status not match will not process
+      }
+      if (typeof executor !== "function") {
+        // executor is not a function, may be undefined, null or a String
+        this._state === FULFILLED ? resolve(this._value) : reject(this._value);
+        return;
+      }
+      try {
+        const result = executor(this._value);
+        if (isPromise(result)) {
+          result.then(resolve, reject); //execute resolve and reject
+        } else resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -207,7 +234,7 @@ console.log(promise3); // MyPromise { _state: 'fulfilled', _value: 123 }
 console.log(promise4); // MyPromise { _state: 'rejected', _value: 444 }
 // Due to handle by try catch, so if hit error exception will just _reject()
 
-// Sample 2 - Comment Sample 3 & 4 to execute
+// Sample 2 - Comment Other Samples to execute
 console.log("\n\n---------- Sample 2 ---------\n\n");
 // setTimeout(() => {
 //   console.log("setTimeout");
@@ -228,7 +255,7 @@ lastly only execute setTimeout which inside macroquene (宏队列）
 
 */
 
-// Sample 3 - Comment Sample 2 & 4 to execute
+// Sample 3 - Comment Other Samples to execute
 console.log("\n\n---------- Sample 3 ---------\n\n");
 
 // setTimeout(() => {
@@ -250,30 +277,90 @@ lastly only execute setTimeout which inside macroquene (宏队列）
 
 */
 
-// Sample 4 - Comment Sample 2 & 3 to execute
+// Sample 4 - Comment Other Samples to execute
 console.log("\n\n---------- Sample 4 ---------\n\n");
-const promise5 = new MyPromise((resolve, reject) => {
-  setTimeout(() => {
-    resolve(123);
-  }, 1000);
-});
+// const promise5 = new MyPromise((resolve, reject) => {
+//   setTimeout(() => {
+//     resolve(123);
+//   }, 1000);
+// });
 
-promise5.then(
-  function A1() {},
-  function A2() {}
-);
+// promise5.then(
+//   function A1() {},
+//   function A2() {}
+// );
 
-promise5.then(
-  function B1() {},
-  function B2() {}
-);
+// promise5.then(
+//   function B1() {},
+//   function B2() {}
+// );
 
-console.log(promise5);
+// console.log(promise5);
 
 /*
 
 Output: Cuurent _state and _value and a List of _handlers 
 Push all tasks that is possible to execute into the _handlers object, 
 which task is going to execute is depends on _state
+
+*/
+
+// Sample 5 - Comment Other Samples to execute
+console.log("\n\n---------- Sample 5 ---------\n\n");
+// const promise6A = new MyPromise((resolve, reject) => {
+//   setTimeout(() => {
+//     resolve(123);
+//   }, 1000);
+// });
+
+// const promise6B = promise6A.then(undefined, undefined); // wrong value for "onFulfilled" and "onRejected"
+
+// setTimeout(() => {
+//   console.log("promise6A - ",promise6A);
+//   console.log("promise6B - ",promise6B);
+// }, 1500);
+
+/*
+
+Output: 
+promise6A -  MyPromise { _state: 'fulfilled', _value: 123, _handlers: [] }
+promise6B -  MyPromise { _state: 'fulfilled', _value: 123, _handlers: [] } 
+
+promise6B will depend on the state of promise6A, 
+promise6A fulfilled then promise6B also fulfilled,
+promise6A rejected then promise6B also rejected,
+although there isn't "onFulfilled" or " onRejected" function pass into "then()"
+
+*/
+
+// Sample 6 - Comment Other Samples to execute
+console.log("\n\n---------- Sample 6 ---------\n\n");
+const promise7A = new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    resolve(123);
+  });
+});
+
+const promise7B = promise7A.then(() => { // pass in a Promise in ".then()"
+  return new MyPromise((resolve, reject) => {
+    reject(321);
+  });
+});
+
+setTimeout(() => {
+  console.log("promise7A - ", promise7A);
+  console.log("promise7B - ", promise7B);
+}, 50);
+
+/*
+
+Output: 
+promise7A -  MyPromise { _state: 'fulfilled', _value: 123, _handlers: [] }
+promise7B -  MyPromise { _state: 'rejected', _value: 321, _handlers: [] } 
+
+promise7B will depend on the state of new Promise of promise7A inside .then(), 
+new Promise of promise7A inside .then() fulfilled then promise6B also fulfilled,
+new Promise of promise7A inside .then() rejected then promise6B also rejected,
+although the first new Promise promise7A is fulfilled
 
 */
