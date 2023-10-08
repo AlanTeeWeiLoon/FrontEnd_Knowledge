@@ -43,5 +43,17 @@ Webpack will mix all CLI parameters, configuration files and default configurati
 
 ![Alt text](<dependent modules.drawio.png>)
 
-<img src="./dependent modules.drawio.png">
 
+#### 3. Generate chunk assets
+
+<p>Webpack will generate a chunk assets list based on the configuration.</p>
+
+![Alt text](<chunk assets.drawio.png>)
+
+
+| Note |
+|------|
+| <b>Chunk hash</b> |
+| Chunk hash is a hash string generated based on the contents of all chunk assets.|
+|<b>Hash</b>|
+|Hash is an algorithm that converts a string of random length into a string of specific length, and can guarantee that if the content has not changed, the hash string will not change |
