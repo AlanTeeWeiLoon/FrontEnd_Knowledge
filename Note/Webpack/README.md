@@ -41,7 +41,6 @@ Webpack will mix all CLI parameters, configuration files and default configurati
 
 #### 2. Build all dependent modules
 ![Alt text](<Image/dependent modules.drawio.png>)
-![Alt text](<Image/dependent modules.drawio.png>)
 
 
 #### 3. Generate chunk assets
