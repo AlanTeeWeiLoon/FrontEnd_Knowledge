@@ -90,4 +90,64 @@ let {
 console.log("\n\n--------------- Sample 5 ---------------\n\n");
 console.log(name4, street4); // Alan Caemas MaseaC
 
+// Destructure Array
 
+/**
+ * Array actually is an Object
+ * arr = {
+ *  0: "a",
+ *  1: "b",
+ *  2: "c",
+ *  3: "d",
+ * }
+ */
+
+const arr = ["a", "b", "c", "d"];
+
+const { 0: item1, 3: item2 } = arr; // item1 will be "a", item2 will be "d"
+
+// Sample 6
+console.log("\n\n--------------- Sample 6 ---------------\n\n");
+console.log(item1, item2); // a d
+
+const [char1, char2] = arr; // use [] to destructure Array
+
+// Sample 7
+console.log("\n\n--------------- Sample 7 ---------------\n\n");
+console.log(char1, char2); // a b
+
+// use get any position of Array value, just leave blank for other
+// if there is no arr[4], can just give default valur "e"
+const [char_1, , , char_4, char_5 = "e"] = arr;
+
+// Sample 8
+console.log("\n\n--------------- Sample 8 ---------------\n\n");
+console.log(char_1, char_4, char_5); // a d e
+
+// Exchange variable
+// Sample 9
+// console.log("\n\n--------------- Sample 9 ---------------\n\n");
+// let a = "A",
+//   b = "B";
+// console.log(a, b) // A B
+
+// [b, a] = [a, b]; // ----------------------- Not Working
+// console.log(a, b); // B A
+
+
+// Question 1
+// Get index with 2 inside index with 4 of "numbers_1", then put in "n_1" variable
+const numbers_1 = [1, 2, 3, 4, ["a", "b", "c", "d"]];
+
+const [, , , , [, , n_1]] = numbers_1;
+
+console.log(n_1); // c
+
+
+// Question 2
+// Get attribute "b" inside index with 4 of "numbers_2", then put in "n_2" variable
+const numbers_2 = [1, 2, 3, 4, { a: 1, b: 2, c: 3 }];
+
+const [, , , , { b: n_2 }] = numbers_2;
+
+console.log(n_2); // 2
