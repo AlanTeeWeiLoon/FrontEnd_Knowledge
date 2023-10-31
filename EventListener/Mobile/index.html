@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Mobile Event Listener</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        .container {
+            width: 200px;
+            height: 200px;
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container"></div>
+    <script>
+        var box = document.querySelector(".container")
+        box.addEventListener("touchstart", function (e) {
+            console.log("finger clicked", e)
+        })
+        box.addEventListener("touchmove", function (e) {
+            console.log("finger moved", e)
+        })
+        box.addEventListener("touchend", function (e) {
+            console.log("finger released", e)
+        })
+        // "click" event listener got 300ms delay
+        // solve by name="viewport" in <meta>
+        box.addEventListener("click", function (e) {
+            console.log("click", e)
+        })
+    </script>
+</body>
+
+</html>
