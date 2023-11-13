@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curry Function</title>
+</head>
+
+<body>
+    <script>
+        // curry: Haskell curry
+        /** 
+         fixed some of the params of function, 
+         be a new function that received remaining params of the function,
+         if there is no remaining params, then trigger  
+         */
+
+        // Sample 1: A Simple, Three-Parameter Function
+        console.log("-------------------Sample 1-------------------")
+        const addition = (x, y, z) => {
+            return x + y + z
+        }
+        console.log(addition(2, 3, 5)) // 10
+
+        // Sample 2: Converting an Existing Function into a Curried Function
+        console.log("-------------------Sample 2-------------------")
+        function sum(x) {   // x is taken as argument here
+            return (y) => {
+                return (z) => { // this function will return the sum
+                    return x + y + z
+                }
+            }
+        }
+        console.log(sum(1)(2)(3)) // 6
+
+        /**
+         In the above example, we '1' is passed to the function "sum". It will return a function like:
+         return (y) => {
+                return (z) => {
+                    return x + y + z
+                }
+            }
+         
+         Now, the above function definition will be treated as "sum1" and takes "b" as an argument. Then we will call the function "sum1" and pass this in 2. Then the sum1 will return the third function as-
+         return (z) => {
+                    return x + y + z
+            }
+         
+         Now, the returned function will be stored in the variable "sum2". Then the function "sum2" will be called and it will take '3' as the parameter.
+         const result = sum2(3);
+         */
+
+        // Sample 3: Creating a Friend Request Curry Function
+        console.log("-------------------Sample 3-------------------")
+        function sendReq(greet) {  //function is created that will take one argument, 'greet' here
+            return function (name) {
+                return function (message) { // name of person and the message is the return value here
+                    return `${greet} ${name}, ${message}`
+                }
+            }
+        }
+        let request = sendReq('Hello')('Alan')('Can you please add me as your connection on LinkedinIn ?')
+        console.log(request) // Hello Alan, Can you please add me as your connection on LinkedinIn ?
+
+        // Sample 4: Advanced currying
+        console.log("-------------------Sample 4-------------------")
+
+        const adv_curry = (fn) => { // here the function is a outer function
+            return curried = (...args) => {
+                if (fn.length !== args.length) { // comparison of function length is done here 
+                    return curried.bind(null, ...args)
+                }
+                return fn(...args);
+            };
+        }
+        const totalNum = (a, b, c) => {
+            return a + b + c
+        }
+        const curriedTotal = adv_curry(totalNum);
+        console.log(curriedTotal(5)(15)(20)); // 40
+
+        /**
+         In the above example, the "adv_curry" function is received as the outer function which is a 'wrapper function'. 
+         Here one more function is 'curried' returned which receives arguments with an operator named 'spread operator (...)'.
+         This operator is for comparison of the function length 'fn.length'. 
+         Spread operator in JavaScript is used to fast copying of array or object into another array or object. 
+         This copying can copy all the parts or some part of the array or object as specified by the user.
+         The number of arguments passed here will show the length property of the function. 
+         The arguments will keep increasing every time the calling of function.
+         */
+    </script>
+</body>
+
+</html>
