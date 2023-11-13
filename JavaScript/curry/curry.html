@@ -5,9 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curry Function</title>
+    <style>
+        .container {
+            border: 2px solid;
+            padding: 30px
+        }
+    </style>
 </head>
 
 <body>
+    <div class="container">
+
+    </div>
     <script>
         // curry: Haskell curry
         /** 
@@ -23,6 +32,7 @@
         }
         console.log(addition(2, 3, 5)) // 10
 
+        
         // Sample 2: Converting an Existing Function into a Curried Function
         console.log("-------------------Sample 2-------------------")
         function sum(x) {   // x is taken as argument here
@@ -51,6 +61,7 @@
          const result = sum2(3);
          */
 
+
         // Sample 3: Creating a Friend Request Curry Function
         console.log("-------------------Sample 3-------------------")
         function sendReq(greet) {  //function is created that will take one argument, 'greet' here
@@ -62,6 +73,7 @@
         }
         let request = sendReq('Hello')('Alan')('Can you please add me as your connection on LinkedinIn ?')
         console.log(request) // Hello Alan, Can you please add me as your connection on LinkedinIn ?
+
 
         // Sample 4: Advanced currying
         console.log("-------------------Sample 4-------------------")
@@ -89,6 +101,60 @@
          The number of arguments passed here will show the length property of the function. 
          The arguments will keep increasing every time the calling of function.
          */
+
+
+        // Sample 5: Advanced currying 2
+        console.log("-------------------Sample 5-------------------")
+        const adv_curryFunc = function (func) {
+            // params from index 1 of func pass in
+            var args = Array.prototype.slice.call(arguments, 1)
+            var that = this
+            return function () {
+                var curArgs = Array.from(arguments) // Current arguments
+                var totalArgs = args.concat(curArgs)
+                if (totalArgs.length >= func.length) {
+                    // params enough
+                    return func.apply(null, totalArgs)
+                } else {
+                     // params not enough
+                    totalArgs.unshift(func)
+                    return that.curry.apply(that, totalArgs)
+                }
+            }
+
+        }
+
+        function createElement(container, name, props, styles, content) { // container, name, props, styles will be fixed, only content will change, so use curry function
+            var ele = document.createElement(name)
+            container.appendChild(ele)
+
+            for (var prop in props) {
+                ele[prop] = props[prop]
+            }
+
+            for (var prop in styles) {
+                ele.style[prop] = styles[prop]
+            }
+
+            ele.innerHTML = content
+
+
+        }
+        
+        var div = document.querySelector(".container")
+        var create = adv_curryFunc(createElement, div, "div", {}, { // first param will be the function, then container, name, props, styles as fixed params
+            height: "100px",
+            background: "#008c8c",
+            margin: "40px",
+            color: "#fff"
+        })
+
+        // create diff content of element inside .container div
+        create("Alan")
+        create("Blan")
+        create("Clan")
+        create("Dlan")
+
     </script>
 </body>
 
