@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // Function Piping is combine some single param function to be a new function.
+        // In these function, the output of the previous function is the input of the next function
+
+        // Sample 1: Camel Case Naming
+        function everyFirstLetterUp(str) {
+            return str.replace(/\b(\w)(\w*)\b/g, function ($, $1, $2) {
+                return $1.toUpperCase() + $2
+            })
+        }
+
+        function otherLetterLower(str) {
+            return str.replace(/\b(\w)(\w*)\b/g, function ($, $1, $2) {
+                return $1 + $2.toLowerCase()
+            })
+        }
+
+        function removeEmpty(str) {
+            return str.replace(/\s+/g, "")
+        }
+
+        function firstLetterLower(str) {
+            return str.replace(/\w/, function ($) {
+                return $.toLowerCase()
+            })
+        }
+
+        // Function Piping
+        const pipe = function () {
+            var args = Array.from(arguments)
+            return function (val) {
+                return args.reduce(function (result, func) {
+                    return func(result)
+                }, val)
+            }
+        }
+
+        var str = "mY NAme iS AlAn"
+        var smallCamel = pipe(everyFirstLetterUp, firstLetterLower, otherLetterLower, removeEmpty)
+
+        console.log(smallCamel(str)) //myNameIsAlan
+    </script>
+</body>
+
+</html>
