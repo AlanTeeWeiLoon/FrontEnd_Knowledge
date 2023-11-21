@@ -12,7 +12,7 @@
         // Function Piping is combine some single param function to be a new function.
         // In these function, the output of the previous function is the input of the next function
 
-        // Sample 1: Camel Case Naming
+        // Sample 1: camelCase Naming
         function everyFirstLetterUp(str) {
             return str.replace(/\b(\w)(\w*)\b/g, function ($, $1, $2) {
                 return $1.toUpperCase() + $2
